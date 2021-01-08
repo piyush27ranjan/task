@@ -10,12 +10,10 @@ var port = 8000;
 const app = express();
 
 // Connect to MongoDB using mongoose
-mongoose.connect('mongodb+srv://admin:ranjan27@cluster0.saktb.mongodb.net/eventLog?retryWrites=true&w=majority', { useNewUrlParser: true });
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function() {
-  console.log("Database Connected");
-});
+mongoose.connect('mongodb+srv://admin:<password>@cluster0.saktb.mongodb.net/eventLog?retryWrites=true&w=majority',
+ { useNewUrlParser: true, connectTimeoutMS: 1000})
+  .then(()=> console.log("Database Connected"))
+  .catch(error => console.log(error));
 
 // Use body parser
 app.use(bodyParser.json());
@@ -33,7 +31,7 @@ app.post("/logEvent", (req, res, next) => {
   logger.info(`event --> ${event} ${timestamp}`)
   const eventLog = new EventModel({ event: event, timestamp: timestamp});
   eventLog.save((err) => {
-      if(err) console.error(err);
+      if(err) next(err);
   })
   res.sendStatus(200);
 })
@@ -43,6 +41,7 @@ app.use((err, req, res, next) => {
 	console.log(err);
 	res.status(422).send({ error: err.message });
 });
+
 // Listen on port
 app.listen(port, () => {
 	console.log(`Listening on port ${port}`);

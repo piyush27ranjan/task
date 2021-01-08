@@ -7,6 +7,4 @@ var eventSchema = new schema({
     timestamp: { type: String, required: true },
 });
 
-
-
 module.exports = mongoose.model('events', eventSchema);
